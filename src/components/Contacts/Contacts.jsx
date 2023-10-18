@@ -1,15 +1,27 @@
 import {  Wrapper } from 'components/Phonebook/Phonebook.styled';
-import PropTypes from 'prop-types'; 
 import { List } from './Contacts.styled';
+import { useDispatch, useSelector } from 'react-redux';
+import { deleteUser } from 'redux/contactsSlice';
+import { selectContacts, selectFilter } from 'redux/selectots';
 
-export const Contacts = ({ data, onDeleteUser }) => {
+export const Contacts = () => {
+  const data = useSelector(selectContacts);
+  const filterValue = useSelector(selectFilter);
+  const dispatch = useDispatch();
+  const filterUser = () => {
+    return data.filter(({ name }) =>
+      name.toLowerCase().includes(filterValue.toLowerCase())
+    );
+  };
+
+  const visibleUsers = filterUser();
   return (
     <Wrapper>
       <List>
-        {data.map(({ id, name, number }) => (
+        {visibleUsers.map(({ id, name, number }) => (
           <li key={id}>
-           {name}:  {number}
-            <button type="button" onClick={() => (onDeleteUser(id))}>
+            {name}: {number}
+            <button type="button" onClick={() => dispatch(deleteUser(id))}>
               Delete
             </button>
           </li>
@@ -17,16 +29,4 @@ export const Contacts = ({ data, onDeleteUser }) => {
       </List>
     </Wrapper>
   );
-};
-
-
-Contacts.propTypes = {
-  data: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      number: PropTypes.string.isRequired,
-    })
-  ),
-  onDeleteUser: PropTypes.func,
 };
